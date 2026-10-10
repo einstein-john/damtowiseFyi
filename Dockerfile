@@ -9,7 +9,7 @@ COPY package.json package-lock.json ./
 # would otherwise drop typescript and break `npm run build`.
 RUN npm ci --include=dev
 
-COPY tsconfig.json drizzle.config.ts ./
+COPY tsconfig.json tsconfig.build.json drizzle.config.ts ./
 COPY src ./src
 RUN npm run build
 
