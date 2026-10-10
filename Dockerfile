@@ -4,7 +4,10 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
+# --include=dev: some hosts set NODE_ENV=production for the whole build, which
+# would otherwise drop typescript and break `npm run build`.
+RUN npm ci --include=dev
 
 COPY tsconfig.json drizzle.config.ts ./
 COPY src ./src
@@ -15,7 +18,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 COPY --from=build /app/dist ./dist
 COPY assets ./assets
