@@ -294,13 +294,16 @@ guideline file. It already knows this repo's non-obvious rules:
 - the deploy hook must stay debounced; the OG public id already contains its folder
 - `GET /health` must never query the database
 
-`.github/workflows/ci.yml` runs `typecheck` → `test` → `build` on every PR;
-`reviews.tools.github-checks` waits on it before summarising.
+`.coderabbit.yaml` also restates these per directory under `path_instructions`, so a
+review flags them wherever the change lands.
 
 > [!IMPORTANT]
 > The GitHub App still has to be installed once, per repo:
 > **https://github.com/apps/coderabbitai/installations/new** → select
 > `einstein-john/damtowiseFyi`. Config alone does nothing until it is.
+>
+> The repo currently has **no commits**, so there is nothing to review yet — the app
+> only runs on PRs.
 
 ---
 
@@ -362,7 +365,7 @@ Everything else in the output — `ERESOLVE overriding peer dependency`, the
 | `pnpm db:generate` | SQL from `src/db/schema.ts` |
 | `pnpm db:migrate` | Apply migrations (needs `DIRECT_DATABASE_URL`) |
 
-CI runs `pnpm typecheck && pnpm test && pnpm build` on every PR. Run the same three
-locally before opening one — reviews and CI both fail otherwise.
+There is no CI in this repo. Run `pnpm typecheck && pnpm test && pnpm build` yourself
+before opening a PR, since nothing else will catch a red baseline.
 
 </div>

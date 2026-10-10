@@ -70,11 +70,9 @@ pnpm build            # tsconfig.build.json, excludes tests
 pnpm db:generate      # after editing src/db/schema.ts
 ```
 
-CI runs `pnpm typecheck && pnpm test && pnpm build` on every PR
-(`.github/workflows/ci.yml`). Run those three locally before opening one — reviewers
-get a red baseline otherwise. CodeRabbit (`.coderabbit.yaml`) reads this file as its
-guideline list; if you change a rule here, change the matching `path_instructions`
-there too.
+There is no CI in this repo. Run `pnpm test && pnpm typecheck && pnpm build` yourself
+before opening a PR. CodeRabbit (`.coderabbit.yaml`) reads this file as its guideline
+list; if you change a rule here, change the matching `path_instructions` there too.
 
 `scripts/smoke-test.ts` exercises the real routes but **needs a live database**. Do not
 claim it passed unless it actually ran.

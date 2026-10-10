@@ -15,6 +15,3 @@ coverage/
 pagefind/
 test-results/
 tmp/
-
-# CodeRabbit local overrides
-.github/local/
