@@ -1,0 +1,140 @@
+# CodeRabbit configuration
+# Docs: https://docs.coderabbit.ai/reference/configuration
+#
+# The GitHub App must also be installed on einstein-john/damtowiseFyi:
+#   https://github.com/apps/coderabbitai/installations/new
+# This file only shapes what it reviews once it is.
+
+version: 2
+
+language: en-US
+
+tone_instructions:
+  - Be concise. Prefer short paragraphs over bulleted essays.
+  - This is a solo project: assume the reviewer is also the author.
+  - Flag correctness and security problems; skip preference-level nits.
+  - Never suggest adding a comment that restates the code.
+
+reviews:
+  profile: assertive
+
+  request_changes_workflow: false
+
+  high_level_summary: true
+  high_level_summary_instructions: |
+    State what the PR does, then list only changes that need attention.
+    Mention any schema change in src/db/schema.ts explicitly, since a
+    migration is required with `pnpm db:generate`.
+    If a PR touches src/lib/auth/, say so — that area is security-critical.
+
+  sequence_diagrams: false
+
+  assess_linked_issue: true
+
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - master
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+    labels:
+      - coderabbit
+
+  path_filters:
+    - "!dist/**"
+    - "!node_modules/**"
+    - "!drizzle/**"
+    - "!.astro/**"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.ttf"
+
+  # CodeRabbit reads AGENTS.md automatically; these add the specifics that are
+  # easy to violate unknowingly.
+  path_instructions:
+    - path: "src/db/**"
+      instructions: |
+        Business logic must not live here. Queries return rows only — no
+        c.json, no HTTP types, no policy decisions.
+        Any change to schema.ts requires a new migration in drizzle/.
+        posts.updatedAt is set explicitly in db/queries/posts.ts; do not
+        assume a database trigger maintains it.
+
+    - path: "src/lib/auth/**"
+      instructions: |
+        Security-critical. Webhook verification must check the Ed25519
+        signature, the kid, the timestamp tolerance, and event-id replay
+        BEFORE reading any field from the body.
+        The decoded JWS payload must be compared to the raw request bytes;
+        a re-serialised body must not be allowed to pass.
+        An empty ADMIN_USER_IDS means allow nobody. Never treat it as
+        allow-all.
+        Never weaken a check to make a test pass.
+
+    - path: "src/lib/publish/**"
+      instructions: |
+        The deploy hook must stay debounced — firing it per publish burns
+        Vercel build minutes.
+        A post publishes only if every image, cover included, has alt text
+        or is marked decorative. collectPublishIssues in checks.ts is the
+        single implementation; do not duplicate the rule.
+        Do not add scheduled-publishing polling. One in-memory timer,
+        re-armed on fire.
+
+    - path: "src/lib/media/**"
+      instructions: |
+        Uploads must pass declared type, magic-byte type and size checks
+        before Cloudinary is contacted.
+        The OG public id already contains its folder (og/fyi/<slug>). Do
+        not pass `folder` and a qualified `public_id` together — the path
+        is doubled.
+
+    - path: "src/routes/**"
+      instructions: |
+        Routes translate HTTP only. Policy belongs in src/services.
+        Public reads must return an ETag and
+        `Cache-Control: public, s-maxage=60, stale-while-revalidate=600`.
+        Admin reads must return `no-store`.
+        GET /health must never query the database.
+
+    - path: "src/services/**"
+      instructions: |
+        The only layer routes may call. It may not import from routes/.
+        Errors must go through lib/http/errors.ts so the response envelope
+        stays `{ error, message?, issues? }` and internals are never leaked.
+
+    - path: "src/contracts/**"
+      instructions: |
+        Single source of truth for the wire shape. Cloudinary URL building
+        lives here — do not rebuild delivery URLs anywhere else.
+        Never put a secret-bearing value in a contract.
+
+    - path: "src/lib/markdown/**"
+      instructions: |
+        Media refs are written as `media:<uuid>` and parsed only by
+        collectMediaRefs, which must ignore fenced code.
+        The media-figure plugin must run before rehype-sanitize so its
+        attributes are validated.
+
+  tools:
+    eslint:
+      enabled: false
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  learn_from_reviews: false
+  web_search:
+    enabled: true
+  code_guidelines:
+    filePatterns:
+      - "AGENTS.md"
+      - "README.md"
+    centralLearnedGuidelines: true
