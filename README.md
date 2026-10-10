@@ -56,15 +56,12 @@ long-running process, which is why we don't run it on Vercel.
 
 ## Install
 
-> [!IMPORTANT]
-> This project uses **pnpm**, not npm. See [Why npm fails](#why-npm-fails).
-
 ```bash
-pnpm install
+npm install
 cp .env.example .env          # then fill in the values
-pnpm db:generate              # SQL from src/db/schema.ts
-pnpm db:migrate               # apply it (uses DIRECT_DATABASE_URL)
-pnpm dev                      # http://localhost:8787
+npm run db:generate           # SQL from src/db/schema.ts
+npm run db:migrate            # apply it (uses DIRECT_DATABASE_URL)
+npm run dev                   # http://localhost:8787
 ```
 
 Check your setup before anything else:
@@ -72,7 +69,7 @@ Check your setup before anything else:
 ```bash
 npx tsx --env-file=.env scripts/check-env.ts     # config only
 npx tsx --env-file=.env scripts/smoke-test.ts   # routes, needs a live database
-pnpm test                                          # 164 tests, no database needed
+npm test                                        # 164 tests, no database needed
 ```
 
 ---
@@ -97,7 +94,7 @@ serializers/  Row → wire shape. contracts/ is the single definition of the wir
 | --- | --- |
 | Add or change an endpoint | `src/routes/` (wiring) + `src/services/` (logic) |
 | Change what a response looks like | `src/contracts/` — one file, both ends |
-| Change how something is stored | `src/db/schema.ts`, then `pnpm db:generate` |
+| Change how something is stored | `src/db/schema.ts`, then `npm run db:generate` |
 | Change Markdown or media rendering | `src/lib/markdown/`, `src/lib/media/` |
 | Change an auth rule | `src/lib/auth/` — never inline in a route |
 
@@ -307,30 +304,6 @@ review flags them wherever the change lands.
 
 ---
 
-## Why npm fails
-
-```
-npm error code EUNSUPPORTEDPROTOCOL
-npm error Unsupported URL Type "workspace:": workspace:./drizzle-orm/dist
-```
-
-**This is not a bug in this project.** `drizzle-kit` publishes a manifest whose
-`devDependencies` still contains an internal pnpm-monorepo specifier. npm chokes on
-the `workspace:` protocol; pnpm resolves it normally.
-
-A `preinstall` guard (`scripts/preinstall.mjs`) blocks npm on a clean install before
-it can create the problem. On an existing checkout, recover with:
-
-```bash
-pnpm install                 # correct path, lockfile is authoritative
-```
-
-Everything else in the output — `ERESOLVE overriding peer dependency`, the
-`ts-jest@26.5.6` / `typedoc@0.19.2` warnings — is npm walking a pnpm-shaped
-`node_modules` and is pure noise.
-
----
-
 ## Security checklist
 
 - [ ] CORS allows only `SITE_ORIGIN` / `API_PUBLIC_ORIGIN` plus `Authorization`
@@ -357,15 +330,15 @@ Everything else in the output — `ERESOLVE overriding peer dependency`, the
 
 | Command | Does |
 | --- | --- |
-| `pnpm dev` | Watch-mode server |
-| `pnpm build` | Emit `dist/` (tests excluded) |
-| `pnpm start` | Run the built server |
-| `pnpm test` | 164 unit tests, no database or network |
-| `pnpm typecheck` | Full project including tests |
-| `pnpm db:generate` | SQL from `src/db/schema.ts` |
-| `pnpm db:migrate` | Apply migrations (needs `DIRECT_DATABASE_URL`) |
+| `npm run dev` | Watch-mode server |
+| `npm run build` | Emit `dist/` (tests excluded) |
+| `npm start` | Run the built server |
+| `npm test` | 164 unit tests, no database or network |
+| `npm run typecheck` | Full project including tests |
+| `npm run db:generate` | SQL from `src/db/schema.ts` |
+| `npm run db:migrate` | Apply migrations (needs `DIRECT_DATABASE_URL`) |
 
-There is no CI in this repo. Run `pnpm typecheck && pnpm test && pnpm build` yourself
+There is no CI in this repo. Run `npm run typecheck && npm test && npm run build` yourself
 before opening a PR, since nothing else will catch a red baseline.
 
 </div>

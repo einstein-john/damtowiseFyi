@@ -49,7 +49,7 @@ a persistent process, not a serverless invocation.
 | --- | --- |
 | New endpoint | `src/routes/…` for wiring, `src/services/…` for logic |
 | Response shape | `src/contracts/` |
-| Storage | `src/db/schema.ts`, then `pnpm db:generate` |
+| Storage | `src/db/schema.ts`, then `npm run db:generate` |
 | Auth logic | `src/lib/auth/` |
 | Markdown / media rendering | `src/lib/markdown/`, `src/lib/media/` |
 | Publish rules | `src/lib/publish/checks.ts` (pure) and `src/services/publish-service.ts` |
@@ -62,15 +62,15 @@ a persistent process, not a serverless invocation.
 ## Commands
 
 ```bash
-pnpm install          # pnpm only. See scripts/preinstall.mjs.
-pnpm dev              # tsx watch
-pnpm test             # vitest, no database or network
-pnpm typecheck        # full project, includes tests
-pnpm build            # tsconfig.build.json, excludes tests
-pnpm db:generate      # after editing src/db/schema.ts
+npm install
+npm run dev           # tsx watch
+npm test              # vitest, no database or network
+npm run typecheck     # full project, includes tests
+npm run build         # tsconfig.build.json, excludes tests
+npm run db:generate   # after editing src/db/schema.ts
 ```
 
-There is no CI in this repo. Run `pnpm test && pnpm typecheck && pnpm build` yourself
+There is no CI in this repo. Run `npm test && npm run typecheck && npm run build` yourself
 before opening a PR. CodeRabbit (`.coderabbit.yaml`) reads this file as its guideline
 list; if you change a rule here, change the matching `path_instructions` there too.
 

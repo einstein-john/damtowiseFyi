@@ -28,7 +28,7 @@ export function requireAdmin(env: Env): AppMiddleware {
       return c.json({ error: "unauthorized", message: "Missing bearer token" }, 401);
     }
 
-    const issuer = env.NEON_AUTH_JWT_ISSUER ?? env.NEON_AUTH_URL;
+    const issuer = jwtIssuer(env);
 
     let payload;
     try {
@@ -48,4 +48,22 @@ export function requireAdmin(env: Env): AppMiddleware {
     c.set("admin", { userId, email: readStringClaim(payload, "email") });
     await next();
   };
+}
+
+/**
+ * Neon signs access tokens with `iss` set to the **origin** of the auth URL
+ * (`https://<project>.auth.neon.tech`), not to the full base URL that may carry
+ * a path such as `/neondb/auth`. jose compares the claim with a plain string
+ * equality, so trusting `NEON_AUTH_URL` verbatim would 401 every real token.
+ * `NEON_AUTH_JWT_ISSUER` still wins for hosts with a non-default issuer.
+ */
+function jwtIssuer(env: Env): string {
+  if (env.NEON_AUTH_JWT_ISSUER) return env.NEON_AUTH_JWT_ISSUER;
+  try {
+    return new URL(env.NEON_AUTH_URL).origin;
+  } catch {
+    // The env schema already rejects anything that is not a URL; this only
+    // guards the impossible, and keeps the failure legible if that ever changes.
+    return env.NEON_AUTH_URL;
+  }
 }

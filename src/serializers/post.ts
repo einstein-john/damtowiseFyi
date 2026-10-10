@@ -1,5 +1,7 @@
 import {
   cloudinaryImagePreviewUrl,
+  type AdminPostDetail,
+  type AdminPostSummary,
   type MediaRef,
   type PostDetail,
   type PostSummary,
@@ -66,5 +68,39 @@ export function toPostDetail(params: {
     ogImageUrl: params.post.ogImageUrl,
     createdAt: params.post.createdAt.toISOString(),
     updatedAt: params.post.updatedAt.toISOString(),
+  };
+}
+
+/**
+ * `PostSummary` plus the status the admin registry table filters on.
+ *
+ * The status is duplicated here rather than added to `PostSummary` because the
+ * public listing has exactly one possible value ("published") — shipping it
+ * would be dead weight on the payload the static build fetches.
+ */
+export function toAdminPostSummary(params: {
+  post: PostRow;
+  tags: TagRow[];
+  cover: MediaRow | null;
+  cloudName: string;
+}): AdminPostSummary {
+  return { ...toPostSummary(params), status: params.post.status };
+}
+
+/**
+ * `PostDetail` plus the editable source. `contentMd` is what the Markdown
+ * studio loads and PATCHes back; `contentHtml` stays for the live preview, so
+ * the editor never has to re-render Markdown on the client.
+ */
+export function toAdminPostDetail(params: {
+  post: PostRow;
+  tags: TagRow[];
+  cover: MediaRow | null;
+  cloudName: string;
+}): AdminPostDetail {
+  return {
+    ...toPostDetail(params),
+    status: params.post.status,
+    contentMd: params.post.contentMd,
   };
 }

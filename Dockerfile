@@ -4,22 +4,20 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
-RUN corepack enable
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json* ./
+RUN npm ci
 
 COPY tsconfig.json drizzle.config.ts ./
 COPY src ./src
-RUN pnpm build
+RUN npm run build
 
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production
-RUN corepack enable
 
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile --prod && pnpm store prune
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev
 
 COPY --from=build /app/dist ./dist
 COPY assets ./assets
