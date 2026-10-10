@@ -4,12 +4,10 @@
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
-  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20.11"
   },
   "scripts": {
-    "preinstall": "node ./scripts/preinstall.mjs",
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",

@@ -52,6 +52,24 @@ export interface PostDetail extends PostSummary {
   updatedAt: string;
 }
 
+/**
+ * Admin-only view of a post.
+ *
+ * `PostDetail` is what the public blog reads, so it carries rendered HTML and
+ * nothing about the editing workflow. The admin console needs the opposite: the
+ * raw Markdown it must round-trip and the status it must show in the registry
+ * table. These stay separate so the public payload can never grow a field the
+ * public does not need — or leak one it must not have.
+ */
+export interface AdminPostSummary extends PostSummary {
+  status: PostStatus;
+}
+
+export interface AdminPostDetail extends PostDetail {
+  status: PostStatus;
+  contentMd: string;
+}
+
 export interface TagSummary {
   id: string;
   name: string;

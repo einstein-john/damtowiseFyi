@@ -24,7 +24,7 @@ reviews:
   high_level_summary_instructions: |
     State what the PR does, then list only changes that need attention.
     Mention any schema change in src/db/schema.ts explicitly, since a
-    migration is required with `pnpm db:generate`.
+    migration is required with `npm run db:generate`.
     If a PR touches src/lib/auth/, say so — that area is security-critical.
 
   sequence_diagrams: false

@@ -5,12 +5,17 @@ import {
   postInputSchema,
   postListQuerySchema,
   postPatchSchema,
-  type PostDetail,
+  type AdminPostDetail,
+  type AdminPostSummary,
 } from "../../contracts/index.js";
 import type { PostWithTags } from "../../db/queries/posts.js";
 import type { MediaRow } from "../../db/schema.js";
 import { privateJson } from "../../lib/http/cache.js";
-import { toPostDetail, toPostSummary } from "../../serializers/post.js";
+import {
+  toAdminPostDetail,
+  toAdminPostSummary,
+  toPostSummary,
+} from "../../serializers/post.js";
 import {
   coverFor,
   createPost,
@@ -23,12 +28,8 @@ import {
 import { inspectPublishReadiness, publishPost, unpublishPost } from "../../services/publish-service.js";
 import type { AppEnv } from "../../types.js";
 
-function toDetail(
-  row: PostWithTags,
-  covers: Map<string, MediaRow>,
-  cloudName: string,
-): PostDetail {
-  return toPostDetail({ post: row.post, tags: row.tags, cover: coverFor(row, covers), cloudName });
+function toDetail(row: PostWithTags, covers: Map<string, MediaRow>, cloudName: string): AdminPostDetail {
+  return toAdminPostDetail({ post: row.post, tags: row.tags, cover: coverFor(row, covers), cloudName });
 }
 
 export function createAdminPostRoutes(): Hono<AppEnv> {
@@ -41,8 +42,8 @@ export function createAdminPostRoutes(): Hono<AppEnv> {
     const covers = await loadCovers(services, result.items);
 
     return privateJson(c, {
-      items: result.items.map((item) =>
-        toPostSummary({
+      items: result.items.map((item): AdminPostSummary =>
+        toAdminPostSummary({
           post: item.post,
           tags: item.tags,
           cover: coverFor(item, covers),
